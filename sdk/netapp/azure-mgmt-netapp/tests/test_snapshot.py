@@ -11,8 +11,9 @@ from setup import *
 import azure.mgmt.netapp.models
 import unittest
 
-snapshots = [TEST_SNAPSHOT_1, TEST_SNAPSHOT_2]
-
+TEST_SNAPSHOT_POLICY_1 = 'sdk-py-tests-snapshot-policy-1'
+TEST_SNAPSHOT_POLICY_2 = 'sdk-py-tests-snapshot-policy-2'
+SNAPSHOTS = [TEST_SNAPSHOT_1, TEST_SNAPSHOT_2]
 
 def create_snapshot(client, rg=TEST_RG, account_name=TEST_ACC_1, pool_name=TEST_POOL_1, volume_name=TEST_VOL_1, snapshot_name=TEST_SNAPSHOT_1, location=LOCATION, snapshot_only=False):
     if not snapshot_only:
@@ -23,12 +24,12 @@ def create_snapshot(client, rg=TEST_RG, account_name=TEST_ACC_1, pool_name=TEST_
         # we need to get the volume id if we didn't just create it
         volume = client.volumes.get(rg, account_name, pool_name, volume_name)
 
-    snapshot = client.snapshots.create(rg, account_name, pool_name, volume_name, snapshot_name,location=location, file_system_id=volume.file_system_id).result()
+    snapshot = client.SNAPSHOTS.create(rg, account_name, pool_name, volume_name, snapshot_name, location=location, file_system_id=volume.file_system_id).result()
     
     return snapshot
 
 def delete_snapshot(client, rg, account_name, pool_name, volume_name, snapshot_name, live=False):
-    client.snapshots.delete(rg, account_name, pool_name, volume_name, snapshot_name).wait()
+    client.SNAPSHOTS.delete(rg, account_name, pool_name, volume_name, snapshot_name).wait()
 
     # wait to be sure it has gone - a workaround for the async nature of certain ARM processes
     co=0
@@ -37,7 +38,7 @@ def delete_snapshot(client, rg, account_name, pool_name, volume_name, snapshot_n
         if live:
             time.sleep(20)
         try:
-            snapshot = client.snapshots.get(rg, account_name, pool_name, volume_name, snapshot_namne)
+            snapshot = client.SNAPSHOTS.get(rg, account_name, pool_name, volume_name, snapshot_namne)
         except:
             # not found is an exception case (status code 200 expected)
             # but is what we are waiting for
@@ -52,11 +53,11 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
     def test_create_delete_snapshot(self):
         snapshot = create_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1, LOCATION)
 
-        snapshot_list = self.client.snapshots.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
+        snapshot_list = self.client.SNAPSHOTS.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
         self.assertEqual(len(list(snapshot_list)), 1)
 
-        self.client.snapshots.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1).wait()
-        snapshot_list = self.client.snapshots.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
+        self.client.SNAPSHOTS.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1).wait()
+        snapshot_list = self.client.SNAPSHOTS.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
         self.assertEqual(len(list(snapshot_list)), 0)
 
         delete_volume(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
@@ -67,11 +68,11 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         snapshot = create_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1, LOCATION)
         snapshot = create_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_2, LOCATION, snapshot_only=True)
 
-        snapshot_list = self.client.snapshots.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
+        snapshot_list = self.client.SNAPSHOTS.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
         self.assertEqual(len(list(snapshot_list)), 2)
         idx = 0
         for snapshot in snapshot_list:
-            self.assertEqual(snapshot.name, snapshots[idx])
+            self.assertEqual(snapshot.name, SNAPSHOTS[idx])
             idx += 1
 
         delete_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1)
@@ -83,7 +84,7 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
     def test_get_snapshot_by_name(self):
         snapshot = create_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1, LOCATION)
 
-        snapshot = self.client.snapshots.get(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1)
+        snapshot = self.client.SNAPSHOTS.get(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1)
         self.assertEqual(snapshot.name, TEST_ACC_1 + '/' + TEST_POOL_1 + '/' + TEST_VOL_1+ '/' + TEST_SNAPSHOT_1)
 
         delete_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1)

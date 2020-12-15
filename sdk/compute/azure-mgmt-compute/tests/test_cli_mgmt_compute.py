@@ -301,7 +301,7 @@ class MgmtComputeTest(AzureMgmtTestCase):
             "source_uri": "/subscriptions/" + SUBSCRIPTION_ID + "/resourceGroups/" + RESOURCE_GROUP + "/providers/Microsoft.Compute/disks/" + DISK_NAME
           }
         }
-        result = self.mgmt_client.snapshots.create_or_update(resource_group.name, SNAPSHOT_NAME, BODY)
+        result = self.mgmt_client.SNAPSHOTS.create_or_update(resource_group.name, SNAPSHOT_NAME, BODY)
         result = result.result()
 
         # Create a virtual machine image from a snapshot.[put]
@@ -2652,7 +2652,7 @@ class MgmtComputeTest(AzureMgmtTestCase):
         result = self.mgmt_client.dedicated_host_groups.get(resource_group.name, HOST_GROUP_NAME)
 
         # Get information about a snapshot.[get]
-        result = self.mgmt_client.snapshots.get(resource_group.name, SNAPSHOT_NAME)
+        result = self.mgmt_client.SNAPSHOTS.get(resource_group.name, SNAPSHOT_NAME)
 
         # Get a gallery.[get]
         result = self.mgmt_client.galleries.get(resource_group.name, GALLERY_NAME)
@@ -2712,7 +2712,7 @@ class MgmtComputeTest(AzureMgmtTestCase):
         result = self.mgmt_client.galleries.list_by_resource_group(resource_group.name)
 
         # List all snapshots in a resource group.[get]
-        result = self.mgmt_client.snapshots.list_by_resource_group(resource_group.name)
+        result = self.mgmt_client.SNAPSHOTS.list_by_resource_group(resource_group.name)
 
         # List all virtual machine images in a resource group.[get]
         result = self.mgmt_client.images.list_by_resource_group(resource_group.name)
@@ -2752,7 +2752,7 @@ class MgmtComputeTest(AzureMgmtTestCase):
         result = self.mgmt_client.galleries.list()
 
         # List all snapshots in a subscription.[get]
-        result = self.mgmt_client.snapshots.list()
+        result = self.mgmt_client.SNAPSHOTS.list()
 
         # List all virtual machine images in a subscription.[get]
         result = self.mgmt_client.images.list()
@@ -2788,7 +2788,7 @@ class MgmtComputeTest(AzureMgmtTestCase):
             "source_uri": "/subscriptions/" + SUBSCRIPTION_ID + "/resourceGroups/" + RESOURCE_GROUP + "/providers/Microsoft.Compute/disks/" + DISK_NAME
           }
         }
-        result = self.mgmt_client.snapshots.update(resource_group.name, SNAPSHOT_NAME, BODY)
+        result = self.mgmt_client.SNAPSHOTS.update(resource_group.name, SNAPSHOT_NAME, BODY)
         result = result.result()
 
         # TODO: dont finish
@@ -2863,7 +2863,7 @@ class MgmtComputeTest(AzureMgmtTestCase):
         # Grant acess snapshot (TODO: need swagger file)
         ACCESS = "Read"
         DURATION_IN_SECONDS = 1800
-        result = self.mgmt_client.snapshots.grant_access(resource_group.name, SNAPSHOT_NAME, ACCESS, DURATION_IN_SECONDS)
+        result = self.mgmt_client.SNAPSHOTS.grant_access(resource_group.name, SNAPSHOT_NAME, ACCESS, DURATION_IN_SECONDS)
         result = result.result()
 
         # Update availability sets (TODO: need swagger file)
@@ -3283,11 +3283,11 @@ class MgmtComputeTest(AzureMgmtTestCase):
         result = result.result()
 
         # Revoke access snapshot (TODO: need swagger file)
-        result = self.mgmt_client.snapshots.revoke_access(resource_group.name, SNAPSHOT_NAME)
+        result = self.mgmt_client.SNAPSHOTS.revoke_access(resource_group.name, SNAPSHOT_NAME)
         result = result.result()
 
         # Delete snapshot (TODO: need swagger file)
-        result = self.mgmt_client.snapshots.delete(resource_group.name, SNAPSHOT_NAME)
+        result = self.mgmt_client.SNAPSHOTS.delete(resource_group.name, SNAPSHOT_NAME)
         result = result.result()
 
         # Delete a proximity placement group.[delete]

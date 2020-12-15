@@ -303,7 +303,7 @@ class MgmtManagedDisksTest(AzureMgmtTestCase):
 
         # Sample from here
         managed_disk = self.compute_client.disks.get(resource_group.name, 'myDisk')
-        async_snapshot_creation = self.compute_client.snapshots.create_or_update(
+        async_snapshot_creation = self.compute_client.SNAPSHOTS.create_or_update(
                 resource_group.name,
                 'mySnapshot',
                 {

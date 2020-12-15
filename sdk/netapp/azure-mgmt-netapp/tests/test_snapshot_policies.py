@@ -2,10 +2,12 @@ import time
 from azure.mgmt.resource import ResourceManagementClient
 from devtools_testutils import AzureMgmtTestCase
 from azure.mgmt.netapp.models import SnapshotPolicy, HourlySchedule, DailySchedule
-from test_account import create_account, delete_account
-from setup import *
+from tests.test_account import create_account, delete_account
+from tests.setup import *
 import azure.mgmt.netapp.models
 
+TEST_SNAPSHOT_POLICY_1='sdk-py-tests-snapshot-policy-1'
+TEST_SNAPSHOT_POLICY_2='sdk-py-tests-snapshot-policy-2'
 snapshot_policies = [TEST_SNAPSHOT_POLICY_1, TEST_SNAPSHOT_POLICY_2]
 
 
@@ -33,13 +35,13 @@ def delete_snapshot_policy(client, snapshot_policy_name, rg=TEST_RG, account_nam
 
 def wait_for_no_snapshot_policy(client, rg, account_name, snapshot_policy_name, live=False):
     # a workaround for the async nature of certain ARM processes
-    co=0
-    while co<5:
+    co = 0
+    while co < 10:
         co += 1
         if live:
-            time.sleep(2)
+            time.sleep(5)
         try:
-            snapshot_policy = client.snapshot_policies.get(rg, account_name, snapshot_policy_name)
+            client.snapshot_policies.get(rg, account_name, snapshot_policy_name)
         except:
             # not found is an exception case (status code 200 expected)
             # and is actually what we are waiting for
