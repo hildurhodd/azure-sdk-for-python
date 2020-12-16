@@ -43,7 +43,7 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
         )
 
         # create and validate an ADLS account
-        response_create = self.adls_account_client.accounts.create(
+        response_create = self.adls_account_client.ACCOUNTS.create(
             resource_group,
             account_name,
             params_create,
@@ -51,7 +51,7 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
         self.assertEqual(models.DataLakeStoreAccountStatus.succeeded, response_create.provisioning_state)
 
         # get the account and ensure that all the values are properly set
-        response_get = self.adls_account_client.accounts.get(
+        response_get = self.adls_account_client.ACCOUNTS.get(
             resource_group,
             account_name
         )
@@ -126,21 +126,21 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
         )
 
         # ensure that the account name is available
-        name_availability = self.adls_account_client.accounts.check_name_availability(
+        name_availability = self.adls_account_client.ACCOUNTS.check_name_availability(
             location.replace(" ", ""),
             account_name
         )
         self.assertTrue(name_availability.name_available)
 
         # create and validate an ADLS account
-        adls_account = self.adls_account_client.accounts.create(
+        adls_account = self.adls_account_client.ACCOUNTS.create(
             resource_group.name,
             account_name,
             params_create,
         ).result()
 
         # ensure that the account name is no longer available
-        name_availability = self.adls_account_client.accounts.check_name_availability(
+        name_availability = self.adls_account_client.ACCOUNTS.check_name_availability(
             location.replace(" ", ""),
             account_name
         )
@@ -161,7 +161,7 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
         self.assertEqual(adls_account.tags['tag1'], 'value1')
 
         # get the account and do the same checks
-        adls_account = self.adls_account_client.accounts.get(
+        adls_account = self.adls_account_client.ACCOUNTS.get(
             resource_group.name,
             account_name
         )
@@ -182,13 +182,13 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
 
         # create no encryption account
         # create and validate an ADLS account
-        adls_account_no_encryption = self.adls_account_client.accounts.create(
+        adls_account_no_encryption = self.adls_account_client.ACCOUNTS.create(
             resource_group.name,
             account_name_no_encryption,
             params_create_no_encryption,
         ).result()
 
-        adls_account_no_encryption = self.adls_account_client.accounts.get(
+        adls_account_no_encryption = self.adls_account_client.ACCOUNTS.get(
             resource_group.name,
             account_name_no_encryption
         )
@@ -206,14 +206,14 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
         self.assertEqual(adls_account_no_encryption.tags['tag1'], 'value1')
 
         # list all the accounts
-        result_list = list(self.adls_account_client.accounts.list_by_resource_group(resource_group.name))
+        result_list = list(self.adls_account_client.ACCOUNTS.list_by_resource_group(resource_group.name))
         self.assertGreater(len(result_list), 1)
 
-        result_list = list(self.adls_account_client.accounts.list())
+        result_list = list(self.adls_account_client.ACCOUNTS.list())
         self.assertGreater(len(result_list), 1)
 
         # update the tags
-        adls_account = self.adls_account_client.accounts.update(
+        adls_account = self.adls_account_client.ACCOUNTS.update(
             resource_group.name,
             account_name,
             azure.mgmt.datalake.store.models.UpdateDataLakeStoreAccountParameters(
@@ -233,7 +233,7 @@ class MgmtDataLakeStoreTest(AzureMgmtTestCase):
         operations_list = self.adls_account_client.operations.list()
         self.assertIsNotNone(operations_list)
 
-        self.adls_account_client.accounts.delete(
+        self.adls_account_client.ACCOUNTS.delete(
             resource_group.name,
             account_name
         ).wait()

@@ -203,7 +203,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
             location = location
         )
 
-        adls_account = self.adls_account_client.accounts.create(
+        adls_account = self.adls_account_client.ACCOUNTS.create(
             resource_group.name,
             self.adls_account_name,
             params_create,
@@ -224,7 +224,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
                 ]
             )
 
-            adla_account = self.adla_account_client.accounts.create(
+            adla_account = self.adla_account_client.ACCOUNTS.create(
                 resource_group.name,
                 self.job_account_name,
                 params_create,
@@ -735,7 +735,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         )
 
         # create and validate an ADLA account
-        adla_account = self.adla_account_client.accounts.create(
+        adla_account = self.adla_account_client.ACCOUNTS.create(
             resource_group.name,
             account_name,
             params_create,
@@ -751,7 +751,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         self.assertEqual(self.adls_account_name, adla_account.default_data_lake_store_account)
 
         # get the account and validate compute policy exists
-        adla_account = self.adla_account_client.accounts.get(
+        adla_account = self.adla_account_client.ACCOUNTS.get(
             resource_group.name,
             account_name
         )
@@ -816,7 +816,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         self.assertEqual(1, len(list_policy))
 
         # delete account
-        self.adla_account_client.accounts.delete(
+        self.adla_account_client.ACCOUNTS.delete(
             resource_group.name,
             account_name
         ).wait()
@@ -842,21 +842,21 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         )
 
         # ensure that the account name is available
-        name_availability = self.adla_account_client.accounts.check_name_availability(
+        name_availability = self.adla_account_client.ACCOUNTS.check_name_availability(
             location.replace(" ", ""),
             account_name
         )
         self.assertTrue(name_availability.name_available)
 
         # create and validate an ADLA account
-        adla_account = self.adla_account_client.accounts.create(
+        adla_account = self.adla_account_client.ACCOUNTS.create(
             resource_group.name,
             account_name,
             params_create
         ).result()
 
         # ensure that the account name is no longer available
-        name_availability = self.adla_account_client.accounts.check_name_availability(
+        name_availability = self.adla_account_client.ACCOUNTS.check_name_availability(
             location.replace(" ", ""),
             account_name
         )
@@ -874,7 +874,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         self.assertEqual(self.adls_account_name, adla_account.default_data_lake_store_account)
 
         # get the account and do the same checks
-        adla_account = self.adla_account_client.accounts.get(
+        adla_account = self.adla_account_client.ACCOUNTS.get(
             resource_group.name,
             account_name
         )
@@ -891,14 +891,14 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         self.assertEqual(self.adls_account_name, adla_account.default_data_lake_store_account)
 
         # list all the accounts (there should always be at least 2)
-        account_list_by_rg = list(self.adla_account_client.accounts.list_by_resource_group(resource_group.name))
+        account_list_by_rg = list(self.adla_account_client.ACCOUNTS.list_by_resource_group(resource_group.name))
         self.assertGreater(len(account_list_by_rg), 0)
 
-        account_list = list(self.adla_account_client.accounts.list())
+        account_list = list(self.adla_account_client.ACCOUNTS.list())
         self.assertGreater(len(account_list), 0)
 
         # update the tags
-        adla_account = self.adla_account_client.accounts.update(
+        adla_account = self.adla_account_client.ACCOUNTS.update(
             resource_group.name,
             account_name,
             azure.mgmt.datalake.analytics.account.models.UpdateDataLakeAnalyticsAccountParameters(
@@ -918,7 +918,7 @@ END;""".format(self.db_name, self.table_name, self.tvf_name, self.view_name, sel
         operations_list = self.adla_account_client.operations.list()
         self.assertIsNotNone(operations_list)
 
-        self.adla_account_client.accounts.delete(
+        self.adla_account_client.ACCOUNTS.delete(
             resource_group.name,
             account_name
         ).wait()

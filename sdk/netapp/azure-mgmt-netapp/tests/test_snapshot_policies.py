@@ -6,9 +6,8 @@ from tests.test_account import create_account, delete_account
 from tests.setup import *
 import azure.mgmt.netapp.models
 
-TEST_SNAPSHOT_POLICY_1='sdk-py-tests-snapshot-policy-1'
-TEST_SNAPSHOT_POLICY_2='sdk-py-tests-snapshot-policy-2'
-snapshot_policies = [TEST_SNAPSHOT_POLICY_1, TEST_SNAPSHOT_POLICY_2]
+TEST_SNAPSHOT_POLICY_1 = 'sdk-py-tests-snapshot-policy-1'
+TEST_SNAPSHOT_POLICY_2 = 'sdk-py-tests-snapshot-policy-2'
 
 
 def create_snapshot_policy(client, snapshot_policy_name, rg=TEST_RG, account_name=TEST_ACC_1, location=LOCATION, snapshot_policy_only=False):
@@ -72,6 +71,8 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
 
         snapshot_policies_list = self.client.snapshot_policies.list(TEST_RG, TEST_ACC_1)
         self.assertEqual(len(list(snapshot_policies_list)), 2)
+        snapshot_policies = [TEST_SNAPSHOT_POLICY_1, TEST_SNAPSHOT_POLICY_2]
+
         idx = 0
         for snapshot_policy in snapshot_policies_list:
             self.assertEqual(snapshot_policy.name, snapshot_policies[idx])

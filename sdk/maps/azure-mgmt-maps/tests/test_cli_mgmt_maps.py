@@ -45,29 +45,29 @@ class MgmtMapsManagementClientTest(AzureMgmtTestCase):
             "test": "true"
           }
         }
-        result = self.mgmt_client.accounts.create_or_update(resource_group.name, ACCOUNT_NAME, BODY)
+        result = self.mgmt_client.ACCOUNTS.create_or_update(resource_group.name, ACCOUNT_NAME, BODY)
 
         # GetAccount[get]
-        result = self.mgmt_client.accounts.get(resource_group.name, ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.get(resource_group.name, ACCOUNT_NAME)
 
         # ListAccountsByResourceGroup[get]
-        result = self.mgmt_client.accounts.list_by_resource_group(resource_group.name)
+        result = self.mgmt_client.ACCOUNTS.list_by_resource_group(resource_group.name)
 
         # ListAccountsBySubscription[get]
-        result = self.mgmt_client.accounts.list_by_subscription()
+        result = self.mgmt_client.ACCOUNTS.list_by_subscription()
 
         # GetOperations[get]
-        result = self.mgmt_client.accounts.list_operations()
+        result = self.mgmt_client.ACCOUNTS.list_operations()
 
         # RegenerateKey[post]
         # BODY = {
         #   "key_type": "primary"
         # }
         key_type = "primary"
-        result = self.mgmt_client.accounts.regenerate_keys(resource_group.name, ACCOUNT_NAME, key_type)
+        result = self.mgmt_client.ACCOUNTS.regenerate_keys(resource_group.name, ACCOUNT_NAME, key_type)
 
         # ListKeys[post]
-        result = self.mgmt_client.accounts.list_keys(resource_group.name, ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.list_keys(resource_group.name, ACCOUNT_NAME)
 
         # UpdateAccount[patch]
         BODY = {
@@ -75,7 +75,7 @@ class MgmtMapsManagementClientTest(AzureMgmtTestCase):
             "special_tag": "true"
           }
         }
-        result = self.mgmt_client.accounts.update(resource_group.name, ACCOUNT_NAME, BODY)
+        result = self.mgmt_client.ACCOUNTS.update(resource_group.name, ACCOUNT_NAME, BODY)
 
         # TODO: Multiple resources involved
         # # MoveAccounts[post]
@@ -89,7 +89,7 @@ class MgmtMapsManagementClientTest(AzureMgmtTestCase):
         # result = self.mgmt_client.accounts.move(resource_group.name, BODY)
 
         # DeleteAccount[delete]
-        result = self.mgmt_client.accounts.delete(resource_group.name, ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.delete(resource_group.name, ACCOUNT_NAME)
 
 
 #------------------------------------------------------------------------------

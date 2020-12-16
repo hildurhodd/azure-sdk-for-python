@@ -54,7 +54,7 @@ class CognitiveServicesAccountPreparer(AzureMgmtPreparer):
         if self.is_live:
             self.client = self.create_mgmt_client(CognitiveServicesManagementClient)
             group = self._get_resource_group(**kwargs)
-            cogsci_account = self.client.accounts.create(
+            cogsci_account = self.client.ACCOUNTS.create(
                 group.name,
                 name,
                 account=
@@ -67,7 +67,7 @@ class CognitiveServicesAccountPreparer(AzureMgmtPreparer):
             )
             time.sleep(10)  # it takes a few seconds to create a cognitive services account
             self.resource = cogsci_account
-            self.cogsci_key = self.client.accounts.list_keys(group.name, name).key1
+            self.cogsci_key = self.client.ACCOUNTS.list_keys(group.name, name).key1
             # FIXME: LuisAuthoringClient and LuisRuntimeClient need authoring key from ARM API (coming soon-ish)
         else:
             self.resource = FakeCognitiveServicesAccount("https://{}.api.cognitive.microsoft.com".format(self.location))
@@ -99,7 +99,7 @@ class CognitiveServicesAccountPreparer(AzureMgmtPreparer):
     def remove_resource(self, name, **kwargs):
         if self.is_live:
             group = self._get_resource_group(**kwargs)
-            self.client.accounts.delete(group.name, name, polling=False)
+            self.client.ACCOUNTS.delete(group.name, name, polling=False)
 
     def _get_resource_group(self, **kwargs):
         try:

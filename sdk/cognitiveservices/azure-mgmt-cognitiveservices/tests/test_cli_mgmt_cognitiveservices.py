@@ -50,7 +50,7 @@ class MgmtCognitiveServicesTest(AzureMgmtTestCase):
             "type": "SystemAssigned"
           }
         }
-        result = self.mgmt_client.accounts.create(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME, account=BODY)
+        result = self.mgmt_client.ACCOUNTS.create(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME, account=BODY)
 
         # /Accounts/put/Create Account[put]
         BODY = {
@@ -81,19 +81,19 @@ class MgmtCognitiveServicesTest(AzureMgmtTestCase):
         # result = self.mgmt_client.accounts.create(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME, account=BODY)
 
         # /Accounts/get/Get Usages[get]
-        result = self.mgmt_client.accounts.get_usages(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.get_usages(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
 
         # /Accounts/get/List SKUs[get]
-        result = self.mgmt_client.accounts.list_skus(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.list_skus(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
 
         # /Accounts/get/Get Account[get]
-        result = self.mgmt_client.accounts.get_properties(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.get_properties(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
 
         # /Accounts/get/List Accounts by Resource Group[get]
-        result = self.mgmt_client.accounts.list_by_resource_group(resource_group_name=RESOURCE_GROUP)
+        result = self.mgmt_client.ACCOUNTS.list_by_resource_group(resource_group_name=RESOURCE_GROUP)
 
         # /Accounts/get/List Accounts by Subscription[get]
-        result = self.mgmt_client.accounts.list()
+        result = self.mgmt_client.ACCOUNTS.list()
 
         # /ResourceSkus/get/Regenerate Keys[get]
         result = self.mgmt_client.resource_skus.list()
@@ -102,10 +102,10 @@ class MgmtCognitiveServicesTest(AzureMgmtTestCase):
         result = self.mgmt_client.operations.list()
 
         # /Accounts/post/Regenerate Keys[post]
-        result = self.mgmt_client.accounts.regenerate_key(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME, key_name="Key2")
+        result = self.mgmt_client.ACCOUNTS.regenerate_key(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME, key_name="Key2")
 
         # /Accounts/post/List Keys[post]
-        result = self.mgmt_client.accounts.list_keys(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.list_keys(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
 
         # /Accounts/patch/Update Account[patch]
         BODY = {
@@ -122,7 +122,7 @@ class MgmtCognitiveServicesTest(AzureMgmtTestCase):
         result = self.mgmt_client.check_sku_availability(location="eastus", skus=SKUS, kind="Face", type="Microsoft.CognitiveServices/accounts")
 
         # /Accounts/delete/Delete Account[delete]
-        result = self.mgmt_client.accounts.delete(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
+        result = self.mgmt_client.ACCOUNTS.delete(resource_group_name=RESOURCE_GROUP, account_name=ACCOUNT_NAME)
 
 
 #------------------------------------------------------------------------------
