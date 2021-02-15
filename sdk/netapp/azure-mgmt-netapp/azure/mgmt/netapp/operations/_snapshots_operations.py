@@ -27,7 +27,7 @@ class SnapshotsOperations(object):
     :param config: Configuration of service client.
     :param serializer: An object model serializer.
     :param deserializer: An object model deserializer.
-    :ivar api_version: Version of the API to be used with the client request. Constant value: "2020-09-01".
+    :ivar api_version: Version of the API to be used with the client request. Constant value: "2020-11-01".
     """
 
     models = models
@@ -37,7 +37,7 @@ class SnapshotsOperations(object):
         self._client = client
         self._serialize = serializer
         self._deserialize = deserializer
-        self.api_version = "2020-09-01"
+        self.api_version = "2020-11-01"
 
         self.config = config
 
@@ -195,9 +195,7 @@ class SnapshotsOperations(object):
 
 
     def _create_initial(
-            self, resource_group_name, account_name, pool_name, volume_name, snapshot_name, location, custom_headers=None, raw=False, **operation_config):
-        body = models.Snapshot(location=location)
-
+            self, body, resource_group_name, account_name, pool_name, volume_name, snapshot_name, custom_headers=None, raw=False, **operation_config):
         # Construct URL
         url = self.create.metadata['url']
         path_format_arguments = {
@@ -249,11 +247,13 @@ class SnapshotsOperations(object):
         return deserialized
 
     def create(
-            self, resource_group_name, account_name, pool_name, volume_name, snapshot_name, location, custom_headers=None, raw=False, polling=True, **operation_config):
+            self, body, resource_group_name, account_name, pool_name, volume_name, snapshot_name, custom_headers=None, raw=False, polling=True, **operation_config):
         """Create a snapshot.
 
         Create the specified snapshot within the given volume.
 
+        :param body: Snapshot object supplied in the body of the operation.
+        :type body: ~azure.mgmt.netapp.models.Snapshot
         :param resource_group_name: The name of the resource group.
         :type resource_group_name: str
         :param account_name: The name of the NetApp account
@@ -264,8 +264,6 @@ class SnapshotsOperations(object):
         :type volume_name: str
         :param snapshot_name: The name of the mount target
         :type snapshot_name: str
-        :param location: Resource location
-        :type location: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: The poller return type is ClientRawResponse, the
          direct response alongside the deserialized response
@@ -280,12 +278,12 @@ class SnapshotsOperations(object):
         :raises: :class:`CloudError<msrestazure.azure_exceptions.CloudError>`
         """
         raw_result = self._create_initial(
+            body=body,
             resource_group_name=resource_group_name,
             account_name=account_name,
             pool_name=pool_name,
             volume_name=volume_name,
             snapshot_name=snapshot_name,
-            location=location,
             custom_headers=custom_headers,
             raw=True,
             **operation_config

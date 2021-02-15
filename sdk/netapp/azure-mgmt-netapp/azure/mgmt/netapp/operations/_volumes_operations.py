@@ -27,7 +27,7 @@ class VolumesOperations(object):
     :param config: Configuration of service client.
     :param serializer: An object model serializer.
     :param deserializer: An object model deserializer.
-    :ivar api_version: Version of the API to be used with the client request. Constant value: "2020-09-01".
+    :ivar api_version: Version of the API to be used with the client request. Constant value: "2020-11-01".
     """
 
     models = models
@@ -37,7 +37,7 @@ class VolumesOperations(object):
         self._client = client
         self._serialize = serializer
         self._deserialize = deserializer
-        self.api_version = "2020-09-01"
+        self.api_version = "2020-11-01"
 
         self.config = config
 
@@ -500,9 +500,7 @@ class VolumesOperations(object):
 
 
     def _revert_initial(
-            self, resource_group_name, account_name, pool_name, volume_name, snapshot_id=None, custom_headers=None, raw=False, **operation_config):
-        body = models.VolumeRevert(snapshot_id=snapshot_id)
-
+            self, resource_group_name, account_name, pool_name, volume_name, body, custom_headers=None, raw=False, **operation_config):
         # Construct URL
         url = self.revert.metadata['url']
         path_format_arguments = {
@@ -545,7 +543,7 @@ class VolumesOperations(object):
             return client_raw_response
 
     def revert(
-            self, resource_group_name, account_name, pool_name, volume_name, snapshot_id=None, custom_headers=None, raw=False, polling=True, **operation_config):
+            self, resource_group_name, account_name, pool_name, volume_name, body, custom_headers=None, raw=False, polling=True, **operation_config):
         """Revert a volume to one of its snapshots.
 
         Revert a volume to the snapshot specified in the body.
@@ -558,8 +556,9 @@ class VolumesOperations(object):
         :type pool_name: str
         :param volume_name: The name of the volume
         :type volume_name: str
-        :param snapshot_id: Resource id of the snapshot
-        :type snapshot_id: str
+        :param body: Object for snapshot to revert supplied in the body of the
+         operation.
+        :type body: ~azure.mgmt.netapp.models.VolumeRevert
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: The poller return type is ClientRawResponse, the
          direct response alongside the deserialized response
@@ -576,7 +575,7 @@ class VolumesOperations(object):
             account_name=account_name,
             pool_name=pool_name,
             volume_name=volume_name,
-            snapshot_id=snapshot_id,
+            body=body,
             custom_headers=custom_headers,
             raw=True,
             **operation_config
@@ -598,11 +597,7 @@ class VolumesOperations(object):
 
 
     def _break_replication_initial(
-            self, resource_group_name, account_name, pool_name, volume_name, force_break_replication=None, custom_headers=None, raw=False, **operation_config):
-        body = None
-        if force_break_replication is not None:
-            body = models.BreakReplicationRequest(force_break_replication=force_break_replication)
-
+            self, resource_group_name, account_name, pool_name, volume_name, body=None, custom_headers=None, raw=False, **operation_config):
         # Construct URL
         url = self.break_replication.metadata['url']
         path_format_arguments = {
@@ -648,7 +643,7 @@ class VolumesOperations(object):
             return client_raw_response
 
     def break_replication(
-            self, resource_group_name, account_name, pool_name, volume_name, force_break_replication=None, custom_headers=None, raw=False, polling=True, **operation_config):
+            self, resource_group_name, account_name, pool_name, volume_name, body=None, custom_headers=None, raw=False, polling=True, **operation_config):
         """Break volume replication.
 
         Break the replication connection on the destination volume.
@@ -661,9 +656,8 @@ class VolumesOperations(object):
         :type pool_name: str
         :param volume_name: The name of the volume
         :type volume_name: str
-        :param force_break_replication: If replication is in status
-         transferring and you want to force break the replication, set to true
-        :type force_break_replication: bool
+        :param body: Optional body to force break the replication.
+        :type body: ~azure.mgmt.netapp.models.BreakReplicationRequest
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: The poller return type is ClientRawResponse, the
          direct response alongside the deserialized response
@@ -680,7 +674,7 @@ class VolumesOperations(object):
             account_name=account_name,
             pool_name=pool_name,
             volume_name=volume_name,
-            force_break_replication=force_break_replication,
+            body=body,
             custom_headers=custom_headers,
             raw=True,
             **operation_config
@@ -952,9 +946,7 @@ class VolumesOperations(object):
 
 
     def _authorize_replication_initial(
-            self, resource_group_name, account_name, pool_name, volume_name, remote_volume_resource_id=None, custom_headers=None, raw=False, **operation_config):
-        body = models.AuthorizeRequest(remote_volume_resource_id=remote_volume_resource_id)
-
+            self, resource_group_name, account_name, pool_name, volume_name, body, custom_headers=None, raw=False, **operation_config):
         # Construct URL
         url = self.authorize_replication.metadata['url']
         path_format_arguments = {
@@ -997,7 +989,7 @@ class VolumesOperations(object):
             return client_raw_response
 
     def authorize_replication(
-            self, resource_group_name, account_name, pool_name, volume_name, remote_volume_resource_id=None, custom_headers=None, raw=False, polling=True, **operation_config):
+            self, resource_group_name, account_name, pool_name, volume_name, body, custom_headers=None, raw=False, polling=True, **operation_config):
         """Authorize source volume replication.
 
         Authorize the replication connection on the source volume.
@@ -1010,8 +1002,9 @@ class VolumesOperations(object):
         :type pool_name: str
         :param volume_name: The name of the volume
         :type volume_name: str
-        :param remote_volume_resource_id: Resource id of the remote volume
-        :type remote_volume_resource_id: str
+        :param body: Authorize request object supplied in the body of the
+         operation.
+        :type body: ~azure.mgmt.netapp.models.AuthorizeRequest
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: The poller return type is ClientRawResponse, the
          direct response alongside the deserialized response
@@ -1028,7 +1021,7 @@ class VolumesOperations(object):
             account_name=account_name,
             pool_name=pool_name,
             volume_name=volume_name,
-            remote_volume_resource_id=remote_volume_resource_id,
+            body=body,
             custom_headers=custom_headers,
             raw=True,
             **operation_config
@@ -1139,9 +1132,7 @@ class VolumesOperations(object):
 
 
     def _pool_change_initial(
-            self, resource_group_name, account_name, pool_name, volume_name, new_pool_resource_id, custom_headers=None, raw=False, **operation_config):
-        body = models.PoolChangeRequest(new_pool_resource_id=new_pool_resource_id)
-
+            self, resource_group_name, account_name, pool_name, volume_name, body, custom_headers=None, raw=False, **operation_config):
         # Construct URL
         url = self.pool_change.metadata['url']
         path_format_arguments = {
@@ -1184,7 +1175,7 @@ class VolumesOperations(object):
             return client_raw_response
 
     def pool_change(
-            self, resource_group_name, account_name, pool_name, volume_name, new_pool_resource_id, custom_headers=None, raw=False, polling=True, **operation_config):
+            self, resource_group_name, account_name, pool_name, volume_name, body, custom_headers=None, raw=False, polling=True, **operation_config):
         """Change pool for volume.
 
         Moves volume to another pool.
@@ -1197,8 +1188,9 @@ class VolumesOperations(object):
         :type pool_name: str
         :param volume_name: The name of the volume
         :type volume_name: str
-        :param new_pool_resource_id: Resource id of the pool to move volume to
-        :type new_pool_resource_id: str
+        :param body: Move volume to the pool supplied in the body of the
+         operation.
+        :type body: ~azure.mgmt.netapp.models.PoolChangeRequest
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: The poller return type is ClientRawResponse, the
          direct response alongside the deserialized response
@@ -1215,7 +1207,7 @@ class VolumesOperations(object):
             account_name=account_name,
             pool_name=pool_name,
             volume_name=volume_name,
-            new_pool_resource_id=new_pool_resource_id,
+            body=body,
             custom_headers=custom_headers,
             raw=True,
             **operation_config
