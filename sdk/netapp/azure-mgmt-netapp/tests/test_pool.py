@@ -14,11 +14,12 @@ def create_pool(client, rg=TEST_RG, acc_name=TEST_ACC_1, pool_name=TEST_POOL_1, 
         create_account(client, rg, acc_name, location)
 
     pool_body = CapacityPool(service_level=SERVICE_LEVEL, size=DEFAULT_SIZE, location=location)
-    pool = client.pools.begin_create_or_update(
+    pool = client.pools.create_or_update(
+        pool_body,
         rg,
         acc_name,
         pool_name,
-        pool_body
+        {'location': location}
     ).result()
 
     return pool
@@ -48,7 +49,7 @@ def delete_pool(client, rg, acc_name, pool_name, live=False):
         if live:
             time.sleep(10)
         try:
-            client.pools.begin_delete(rg, acc_name, pool_name).wait()
+            client.pools.delete(rg, acc_name, pool_name).wait()
         except:
             # Want to catch specifically "Can not delete resource before nested resources are deleted."
             # but should be safe to generalise
@@ -59,7 +60,7 @@ def delete_pool(client, rg, acc_name, pool_name, live=False):
 class NetAppAccountTestCase(AzureMgmtTestCase):
     def setUp(self):
         super(NetAppAccountTestCase, self).setUp()
-        self.client = self.create_mgmt_client(azure.mgmt.netapp.NetAppManagementClient)
+        self.client = self.create_mgmt_client(azure.mgmt.netapp.AzureNetAppFilesManagementClient)
 
     def test_create_delete_pool(self):
         pool = create_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, LOCATION)
@@ -69,10 +70,11 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         pool_list = self.client.pools.list(TEST_RG, TEST_ACC_1)
         self.assertEqual(len(list(pool_list)), 1)
 
-        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        self.client.pools.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1).wait()
         pool_list = self.client.pools.list(TEST_RG, TEST_ACC_1)
         self.assertEqual(len(list(pool_list)), 0)
 
+        wait_for_no_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1, live=self.is_live)
 
     def test_list_pools(self):
@@ -87,8 +89,10 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
             self.assertEqual(pool.name, pools[idx])
             idx += 1
 
-        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
-        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_2, live=self.is_live)
+        self.client.pools.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1).wait()
+        self.client.pools.delete(TEST_RG, TEST_ACC_1, TEST_POOL_2).wait()
+        for pool in pools:
+            wait_for_no_pool(self.client, TEST_RG, TEST_ACC_1, pools[idx], live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1, live=self.is_live)
 
     def test_get_pool_by_name(self):
@@ -97,7 +101,8 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         pool = self.client.pools.get(TEST_RG, TEST_ACC_1, TEST_POOL_1)
         self.assertEqual(pool.name, TEST_ACC_1 + '/' + TEST_POOL_1)
 
-        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        self.client.pools.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1).wait()
+        wait_for_no_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1, live=self.is_live)
 
     def test_update_pool(self):
@@ -105,15 +110,17 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         self.assertEqual(pool.qos_type, "Auto")
 
         pool_body = CapacityPoolPatch(qos_type="Manual", size=DEFAULT_SIZE, location=LOCATION)
-        pool = self.client.pools.begin_create_or_update(
+        pool = self.client.pools.create_or_update(
+            pool_body,
             TEST_RG,
             TEST_ACC_1,
             TEST_POOL_1,
-            pool_body
+            {'location': LOCATION}
         ).result()
         self.assertEqual(pool.qos_type, "Manual")
 
-        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        self.client.pools.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1).wait()
+        wait_for_no_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1, live=self.is_live)
 
     def test_patch_pool(self):
@@ -122,9 +129,10 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         tag = {'Tag2': 'Value1'}
         capacity_pool_patch = CapacityPoolPatch(qos_type="Manual", tags=tag)
 
-        pool = self.client.pools.begin_update(TEST_RG, TEST_ACC_1, TEST_POOL_1, capacity_pool_patch).result()
+        pool = self.client.pools.update(capacity_pool_patch, TEST_RG, TEST_ACC_1, TEST_POOL_1).result()
         self.assertEqual(pool.qos_type, "Manual")
         self.assertTrue(pool.tags['Tag2'] == 'Value1')
 
-        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        self.client.pools.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1).wait()
+        wait_for_no_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1, live=self.is_live)

@@ -1,7 +1,7 @@
 import time
 from azure.mgmt.resource import ResourceManagementClient
 from devtools_testutils import AzureMgmtTestCase
-from azure.mgmt.netapp.models import BackupPolicy, BackupPolicyPatch
+from azure.mgmt.netapp.models import BackupPolicy
 from test_account import create_account, delete_account
 from setup import *
 import azure.mgmt.netapp.models
@@ -9,7 +9,7 @@ import azure.mgmt.netapp.models
 TEST_BACKUP_POLICY_1='sdk-py-tests-backup-policy-1'
 TEST_BACKUP_POLICY_2='sdk-py-tests-backup-policy-2'
 BACKUP_POLICIES = [TEST_BACKUP_POLICY_1, TEST_BACKUP_POLICY_2]
-BP_LOCATION = 'southcentralusstage'
+BP_LOCATION = 'eastus2euap'
 BP_RESOURCE_GROUP = 'bp_rg_python_sdk_test'
 BP_ACCOUNT = 'sdk-py-tests-bp-acc'
 
@@ -23,15 +23,15 @@ def create_backup_policy(client, backup_policy_name, rg=BP_RESOURCE_GROUP, accou
         daily_backups_to_keep=1,
         weekly_backups_to_keep=0,
         monthly_backups_to_keep=0,
-        enabled=True
+        enabled=False
     )
 
-    backup_policy = client.backup_policies.begin_create(rg, account_name, backup_policy_name, backup_policy_body).result()
+    backup_policy = client.backup_policies.create(rg, account_name, backup_policy_name, backup_policy_body).result()
     return backup_policy
 
 
 def delete_backup_policy(client, backup_policy_name, rg=BP_RESOURCE_GROUP, account_name=BP_ACCOUNT, live=False):
-    client.backup_policies.begin_delete(rg, account_name, backup_policy_name).wait()
+    client.backup_policies.delete(rg, account_name, backup_policy_name).wait()
     wait_for_no_backup_policy(client, rg, account_name, backup_policy_name, live)
 
 
@@ -50,22 +50,10 @@ def wait_for_no_backup_policy(client, rg, account_name, backup_policy_name, live
             break
 
 
-def wait_for_backup_policy_state(client, desired_state, rg=BP_RESOURCE_GROUP, account_name=BP_ACCOUNT,
-                                 backup_policy_name=TEST_BACKUP_POLICY_1, live=False):
-    co = 0
-    while co < 5:
-        co += 1
-        policy = client.backup_policies.get(rg, account_name, backup_policy_name)
-        if policy.provisioning_state == desired_state:
-            break
-        if live:
-            time.sleep(5)
-
-
 class NetAppAccountTestCase(AzureMgmtTestCase):
     def setUp(self):
         super(NetAppAccountTestCase, self).setUp()
-        self.client = self.create_mgmt_client(azure.mgmt.netapp.NetAppManagementClient)
+        self.client = self.create_mgmt_client(azure.mgmt.netapp.AzureNetAppFilesManagementClient)
 
     def test_create_delete_backup_policy(self):
         create_backup_policy(self.client, TEST_BACKUP_POLICY_1)
@@ -110,15 +98,14 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
 
     def test_update_backup_policies(self):
         create_backup_policy(self.client, TEST_BACKUP_POLICY_1)
-        backup_policy_body = BackupPolicyPatch(
+        backup_policy_body = BackupPolicy(
             location=BP_LOCATION,
             daily_backups_to_keep=0,
             weekly_backups_to_keep=1,
             monthly_backups_to_keep=0,
-            enabled=True
+            enabled=False
         )
         self.client.backup_policies.update(BP_RESOURCE_GROUP, BP_ACCOUNT, TEST_BACKUP_POLICY_1, backup_policy_body)
-        wait_for_backup_policy_state(self.client, "Succeeded")
 
         backup_policy = self.client.backup_policies.get(BP_RESOURCE_GROUP, BP_ACCOUNT, TEST_BACKUP_POLICY_1)
         self.assertEqual(backup_policy.daily_backups_to_keep, 0)
