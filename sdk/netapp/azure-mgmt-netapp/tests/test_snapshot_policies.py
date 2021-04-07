@@ -2,7 +2,7 @@ import time
 import unittest
 from azure.mgmt.resource import ResourceManagementClient
 from devtools_testutils import AzureMgmtTestCase
-from azure.mgmt.netapp.models import SnapshotPolicy, HourlySchedule, DailySchedule
+from azure.mgmt.netapp.models import SnapshotPolicy, SnapshotPolicyPatch, HourlySchedule, DailySchedule
 from test_account import create_account, delete_account
 from setup import *
 import azure.mgmt.netapp.models
@@ -24,12 +24,12 @@ def create_snapshot_policy(client, snapshot_policy_name, rg=TEST_RG, account_nam
         enabled=False
     )
 
-    snapshot_policy = client.snapshot_policies.create(snapshot_policy_body, rg, account_name, snapshot_policy_name).result()
+    snapshot_policy = client.snapshot_policies.create(rg, account_name, snapshot_policy_name, snapshot_policy_body)
     return snapshot_policy
 
 
 def delete_snapshot_policy(client, snapshot_policy_name, rg=TEST_RG, account_name=TEST_ACC_1, live=False):
-    client.snapshot_policies.delete(rg, account_name, snapshot_policy_name).wait()
+    client.snapshot_policies.begin_delete(rg, account_name, snapshot_policy_name).wait()
     wait_for_no_snapshot_policy(client, rg, account_name, snapshot_policy_name, live)
 
 
@@ -51,7 +51,7 @@ def wait_for_no_snapshot_policy(client, rg, account_name, snapshot_policy_name, 
 class NetAppAccountTestCase(AzureMgmtTestCase):
     def setUp(self):
         super(NetAppAccountTestCase, self).setUp()
-        self.client = self.create_mgmt_client(azure.mgmt.netapp.AzureNetAppFilesManagementClient)
+        self.client = self.create_mgmt_client(azure.mgmt.netapp.NetAppManagementClient)
 
     def test_create_delete_snapshot_policy(self):
         create_snapshot_policy(self.client, TEST_SNAPSHOT_POLICY_1)
@@ -75,7 +75,7 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         snapshot_policies = [TEST_SNAPSHOT_POLICY_1, TEST_SNAPSHOT_POLICY_2]
 
         idx = 0
-        for snapshot_policy in snapshot_policies_list:
+        for snapshot_policy  in snapshot_policies_list:
             self.assertEqual(snapshot_policy.name, snapshot_policies[idx])
             idx += 1
 
@@ -96,10 +96,9 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         delete_snapshot_policy(self.client, TEST_SNAPSHOT_POLICY_1, live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1)
 
-    @unittest.skip("Test failed on MacOS_Python27")
     def test_update_snapshot_policies(self):
         create_snapshot_policy(self.client, TEST_SNAPSHOT_POLICY_1)
-        snapshot_policy_body = SnapshotPolicy(
+        snapshot_policy_body = SnapshotPolicyPatch(
             location=LOCATION,
             hourly_schedule={},
             daily_schedule=DailySchedule(snapshots_to_keep=1, minute=50, hour=1),
@@ -107,7 +106,7 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
             monthly_schedule={},
             enabled=False
         )
-        self.client.snapshot_policies.update(snapshot_policy_body, TEST_RG, TEST_ACC_1, TEST_SNAPSHOT_POLICY_1)
+        self.client.snapshot_policies.begin_update(TEST_RG, TEST_ACC_1, TEST_SNAPSHOT_POLICY_1, snapshot_policy_body)
 
         snapshot_policy = self.client.snapshot_policies.get(TEST_RG, TEST_ACC_1, TEST_SNAPSHOT_POLICY_1)
         self.assertEqual(snapshot_policy.daily_schedule.snapshots_to_keep, 1)

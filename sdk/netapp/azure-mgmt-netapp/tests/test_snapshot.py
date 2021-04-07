@@ -1,7 +1,7 @@
 import time
 from azure.mgmt.resource import ResourceManagementClient
 from devtools_testutils import AzureMgmtTestCase
-from azure.mgmt.netapp.models import Volume
+from azure.mgmt.netapp.models import Volume, Snapshot
 from test_volume import create_volume, wait_for_volume, delete_volume
 from test_pool import delete_pool
 from test_account import delete_account
@@ -22,14 +22,12 @@ def create_snapshot(client, rg=TEST_RG, account_name=TEST_ACC_1, pool_name=TEST_
         # we need to get the volume id if we didn't just create it
         volume = client.volumes.get(rg, account_name, pool_name, volume_name)
 
-    snapshot = client.snapshots.create(rg, account_name, pool_name, volume_name, snapshot_name, location=location,
-                                       file_system_id=volume.file_system_id).result()
-
-    return snapshot
+    body = Snapshot(location=location, file_system_id=volume.file_system_id)
+    return client.snapshots.begin_create(rg, account_name, pool_name, volume_name, snapshot_name, body).result()
 
 
 def delete_snapshot(client, rg, account_name, pool_name, volume_name, snapshot_name, live=False):
-    client.snapshots.delete(rg, account_name, pool_name, volume_name, snapshot_name).wait()
+    client.snapshots.begin_delete(rg, account_name, pool_name, volume_name, snapshot_name).wait()
 
     # wait to be sure it has gone - a workaround for the async nature of certain ARM processes
     co = 0
@@ -48,7 +46,7 @@ def delete_snapshot(client, rg, account_name, pool_name, volume_name, snapshot_n
 class NetAppAccountTestCase(AzureMgmtTestCase):
     def setUp(self):
         super(NetAppAccountTestCase, self).setUp()
-        self.client = self.create_mgmt_client(azure.mgmt.netapp.AzureNetAppFilesManagementClient)
+        self.client = self.create_mgmt_client(azure.mgmt.netapp.NetAppManagementClient)
 
     def test_create_delete_snapshot(self):
         create_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1, LOCATION)
@@ -56,7 +54,7 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
         snapshot_list = self.client.snapshots.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
         self.assertEqual(len(list(snapshot_list)), 1)
 
-        self.client.snapshots.delete(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1).wait()
+        delete_snapshot(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_SNAPSHOT_1, self.is_live)
         snapshot_list = self.client.snapshots.list(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
         self.assertEqual(len(list(snapshot_list)), 0)
 
