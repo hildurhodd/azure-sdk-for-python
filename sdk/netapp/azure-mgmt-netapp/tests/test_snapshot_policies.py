@@ -2,8 +2,10 @@ import time
 import unittest
 from azure.mgmt.resource import ResourceManagementClient
 from devtools_testutils import AzureMgmtTestCase
-from azure.mgmt.netapp.models import SnapshotPolicy, SnapshotPolicyPatch, HourlySchedule, DailySchedule
+from azure.mgmt.netapp.models import SnapshotPolicy, SnapshotPolicyPatch, HourlySchedule, DailySchedule, Volume, VolumeSnapshotProperties, VolumePatchPropertiesDataProtection, VolumePatch
 from test_account import create_account, delete_account
+from test_pool import delete_pool
+from test_volume import create_volume, delete_volume
 from setup import *
 import azure.mgmt.netapp.models
 
@@ -115,3 +117,21 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
 
         delete_snapshot_policy(self.client, TEST_SNAPSHOT_POLICY_1, live=self.is_live)
         delete_account(self.client, TEST_RG, TEST_ACC_1)
+
+    def test_assign_snapshot_policy_to_volume(self):
+        # create volume and snapshot policy
+        create_volume(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1)
+        snapshot_policy = create_snapshot_policy(self.client, TEST_SNAPSHOT_POLICY_1)
+        # assign the snapshot policy to the volume
+        snapshot = VolumeSnapshotProperties(snapshot_policy_id=snapshot_policy.id)
+        data_protection = VolumePatchPropertiesDataProtection(snapshot=snapshot)
+        volume_patch = VolumePatch(data_protection=data_protection)
+        volume = self.client.volumes.begin_update(TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, volume_patch).result()
+
+        self.assertEqual(volume.data_protection.snapshot.snapshot_policy_id, snapshot_policy.id)
+
+        # cleanup
+        delete_volume(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
+        delete_snapshot_policy(self.client, TEST_SNAPSHOT_POLICY_1, live=self.is_live)
+        delete_pool(self.client, TEST_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        delete_account(self.client, TEST_RG, TEST_ACC_1, live=self.is_live)
