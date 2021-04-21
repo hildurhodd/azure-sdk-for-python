@@ -17,22 +17,71 @@ from ._net_app_management_client_enums import *
 class AccountEncryption(msrest.serialization.Model):
     """Encryption settings.
 
-    :param key_source: Encryption Key Source. Possible values are: 'Microsoft.NetApp'.
+    :param key_source: Encryption Key Source. Possible values are: Microsoft.KeyVault,
+     Microsoft.NetApp.
     :type key_source: str
+    :param key_vault_properties: Key Vault Properties. Required if Encryption Key Source is
+     Microsoft.KeyVault.
+    :type key_vault_properties: ~azure.mgmt.netapp.models.AccountEncryptionKeyVaultProperties
     """
 
     _attribute_map = {
         'key_source': {'key': 'keySource', 'type': 'str'},
+        'key_vault_properties': {'key': 'keyVaultProperties', 'type': 'AccountEncryptionKeyVaultProperties'},
     }
 
     def __init__(
         self,
         *,
         key_source: Optional[str] = None,
+        key_vault_properties: Optional["AccountEncryptionKeyVaultProperties"] = None,
         **kwargs
     ):
         super(AccountEncryption, self).__init__(**kwargs)
         self.key_source = key_source
+        self.key_vault_properties = key_vault_properties
+
+
+class AccountEncryptionKeyVaultProperties(msrest.serialization.Model):
+    """Key Vault Properties. Required if Encryption Key Source is Microsoft.KeyVault.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param key_vault_id: Id the of Azure Key Vault Configuration.
+    :type key_vault_id: str
+    :param key_vault_uri: URI for the Azure Key Vault managing the keys.
+    :type key_vault_uri: str
+    :param key_name: Name of the Azure Key Vault key.
+    :type key_name: str
+    :ivar status: Status of the Azure Key Vault configuration. Possible values include: "Created",
+     "InUse", "Deleted", "Error", "Updating".
+    :vartype status: str or ~azure.mgmt.netapp.models.AzureKeyVaultEncryptionStatus
+    """
+
+    _validation = {
+        'status': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'key_vault_id': {'key': 'keyVaultId', 'type': 'str'},
+        'key_vault_uri': {'key': 'keyVaultUri', 'type': 'str'},
+        'key_name': {'key': 'keyName', 'type': 'str'},
+        'status': {'key': 'status', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        key_vault_id: Optional[str] = None,
+        key_vault_uri: Optional[str] = None,
+        key_name: Optional[str] = None,
+        **kwargs
+    ):
+        super(AccountEncryptionKeyVaultProperties, self).__init__(**kwargs)
+        self.key_vault_id = key_vault_id
+        self.key_vault_uri = key_vault_uri
+        self.key_name = key_name
+        self.status = None
 
 
 class ActiveDirectory(msrest.serialization.Model):
@@ -285,8 +334,6 @@ class BackupPatch(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param tags: A set of tags. Resource tags.
-    :type tags: dict[str, str]
     :ivar backup_id: UUID v4 used to identify the Backup.
     :vartype backup_id: str
     :ivar creation_date: The creation date of the backup.
@@ -320,7 +367,6 @@ class BackupPatch(msrest.serialization.Model):
     }
 
     _attribute_map = {
-        'tags': {'key': 'tags', 'type': '{str}'},
         'backup_id': {'key': 'properties.backupId', 'type': 'str'},
         'creation_date': {'key': 'properties.creationDate', 'type': 'iso-8601'},
         'provisioning_state': {'key': 'properties.provisioningState', 'type': 'str'},
@@ -335,13 +381,11 @@ class BackupPatch(msrest.serialization.Model):
     def __init__(
         self,
         *,
-        tags: Optional[Dict[str, str]] = None,
         label: Optional[str] = None,
         use_existing_snapshot: Optional[bool] = False,
         **kwargs
     ):
         super(BackupPatch, self).__init__(**kwargs)
-        self.tags = tags
         self.backup_id = None
         self.creation_date = None
         self.provisioning_state = None
@@ -1400,6 +1444,8 @@ class NetAppAccount(msrest.serialization.Model):
     :type tags: dict[str, str]
     :ivar system_data: The system meta data relating to this resource.
     :vartype system_data: ~azure.mgmt.netapp.models.SystemData
+    :param identity: Resource Identity.
+    :type identity: ~azure.mgmt.netapp.models.ResourceIdentity
     :ivar provisioning_state: Azure lifecycle management.
     :vartype provisioning_state: str
     :param active_directories: Active Directories.
@@ -1424,6 +1470,7 @@ class NetAppAccount(msrest.serialization.Model):
         'type': {'key': 'type', 'type': 'str'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'system_data': {'key': 'systemData', 'type': 'SystemData'},
+        'identity': {'key': 'identity', 'type': 'ResourceIdentity'},
         'provisioning_state': {'key': 'properties.provisioningState', 'type': 'str'},
         'active_directories': {'key': 'properties.activeDirectories', 'type': '[ActiveDirectory]'},
         'encryption': {'key': 'properties.encryption', 'type': 'AccountEncryption'},
@@ -1434,6 +1481,7 @@ class NetAppAccount(msrest.serialization.Model):
         *,
         location: str,
         tags: Optional[Dict[str, str]] = None,
+        identity: Optional["ResourceIdentity"] = None,
         active_directories: Optional[List["ActiveDirectory"]] = None,
         encryption: Optional["AccountEncryption"] = None,
         **kwargs
@@ -1445,6 +1493,7 @@ class NetAppAccount(msrest.serialization.Model):
         self.type = None
         self.tags = tags
         self.system_data = None
+        self.identity = identity
         self.provisioning_state = None
         self.active_directories = active_directories
         self.encryption = encryption
@@ -1491,6 +1540,8 @@ class NetAppAccountPatch(msrest.serialization.Model):
     :vartype type: str
     :param tags: A set of tags. Resource tags.
     :type tags: dict[str, str]
+    :param identity: Resource Identity.
+    :type identity: ~azure.mgmt.netapp.models.ResourceIdentity
     :ivar provisioning_state: Azure lifecycle management.
     :vartype provisioning_state: str
     :param active_directories: Active Directories.
@@ -1512,6 +1563,7 @@ class NetAppAccountPatch(msrest.serialization.Model):
         'name': {'key': 'name', 'type': 'str'},
         'type': {'key': 'type', 'type': 'str'},
         'tags': {'key': 'tags', 'type': '{str}'},
+        'identity': {'key': 'identity', 'type': 'ResourceIdentity'},
         'provisioning_state': {'key': 'properties.provisioningState', 'type': 'str'},
         'active_directories': {'key': 'properties.activeDirectories', 'type': '[ActiveDirectory]'},
         'encryption': {'key': 'properties.encryption', 'type': 'AccountEncryption'},
@@ -1522,6 +1574,7 @@ class NetAppAccountPatch(msrest.serialization.Model):
         *,
         location: Optional[str] = None,
         tags: Optional[Dict[str, str]] = None,
+        identity: Optional["ResourceIdentity"] = None,
         active_directories: Optional[List["ActiveDirectory"]] = None,
         encryption: Optional["AccountEncryption"] = None,
         **kwargs
@@ -1532,6 +1585,7 @@ class NetAppAccountPatch(msrest.serialization.Model):
         self.name = None
         self.type = None
         self.tags = tags
+        self.identity = identity
         self.provisioning_state = None
         self.active_directories = active_directories
         self.encryption = encryption

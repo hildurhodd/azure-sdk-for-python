@@ -9,60 +9,67 @@ from setup import *
 import azure.mgmt.netapp.models
 import unittest
 
-BACKUP_VNET = 'bprgpythonsdktestvnet464'
-BACKUP_RG = 'bp_rg_python_sdk_test'
-TEST_BACKUP_1 = 'sdk-py-tests-backup-1'
-TEST_BACKUP_2 = 'sdk-py-tests-backup-2'
-BACKUP_LOCATION = 'southcentralusstage'
 backups = [TEST_BACKUP_1, TEST_BACKUP_2]
 
-#list get delete
-def test_list_account_backups(self):
-    create_backup(self.client, backup_name=TEST_BACKUP_1, live=self.is_live)
-    create_backup(self.client, backup_name=TEST_BACKUP_2, backup_only=True, live=self.is_live)
 
-    account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
-    self.assertEqual(len(list(account_backup_list)), 2)
+class NetAppAccountBackupTestCase(AzureMgmtTestCase):
+    def setUp(self):
+        super(NetAppAccountBackupTestCase, self).setUp()
+        self.client = self.create_mgmt_client(azure.mgmt.netapp.NetAppManagementClient)
 
-    idx = 0
-    for backup in account_backup_list:
-        self.assertEqual(backup.name, backups[idx])
-        idx += 1
+    #list get delete
+    def test_list_account_backups(self):
+        create_backup(self.client, backup_name=TEST_BACKUP_1, live=self.is_live)
+        create_backup(self.client, backup_name=TEST_BACKUP_2, backup_only=True, live=self.is_live)
 
-    disable_backup(self.client, live=self.is_live)
-    disable_backup(self.client, backup_name=TEST_BACKUP_2, live=self.is_live)
+        account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
+        backup_count = 0
+        for backup in account_backup_list:
+            if TEST_BACKUP_1 in backup.name or TEST_BACKUP_2 in backup.name:
+                backup_count += 1
 
-    account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
-    self.assertEqual(len(list(account_backup_list)), 0)
+        self.assertEqual(backup_count, 2)
 
-    delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
-    delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
-    delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)
+        disable_backup(self.client, live=self.is_live)
+        disable_backup(self.client, backup_name=TEST_BACKUP_2, live=self.is_live)
 
+        account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
+        backup_count = 0
+        for backup in account_backup_list:
+            if TEST_BACKUP_1 in backup.name or TEST_BACKUP_2 in backup.name:
+                backup_count += 1
 
-def test_get_account_backups(self):
-    create_backup(self.client, backup_name=TEST_BACKUP_1, live=self.is_live)
+        self.assertEqual(backup_count, 0)
 
-    account_backup = self.client.account_backups.get(BACKUP_RG, TEST_ACC_1, TEST_BACKUP_1)
-    self.assertEqual(account_backup.name, TEST_ACC_1 + "/" + TEST_POOL_1 + "/" + TEST_VOL_1 + "/" + TEST_BACKUP_1)
-
-    disable_backup(self.client, TEST_BACKUP_1, live=self.is_live)
-    delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
-    delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
-    delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)
+        delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
+        delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)
 
 
-def test_delete_account_backups(self):
-    create_backup(self.client, backup_name=TEST_BACKUP_1, live=self.is_live)
+    def test_get_account_backups(self):
+        create_backup(self.client, backup_name=TEST_BACKUP_1, live=self.is_live)
 
-    account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
-    self.assertEqual(len(list(account_backup_list)), 1)
+        account_backup = self.client.account_backups.get(BACKUP_RG, TEST_ACC_1, TEST_BACKUP_1)
+        self.assertEqual(account_backup.name, TEST_ACC_1 + "/" + TEST_BACKUP_1)
 
-    delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
-    self.client.account_backups.begin_delete(BACKUP_RG, TEST_ACC_1, TEST_BACKUP_1).wait()
+        disable_backup(self.client, TEST_BACKUP_1, live=self.is_live)
+        delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
+        delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)
 
-    account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
-    self.assertEqual(len(list(account_backup_list)), 0)
 
-    delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
-    delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)
+    def test_delete_account_backups(self):
+        create_backup(self.client, backup_name=TEST_BACKUP_1, live=self.is_live)
+
+        account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
+        self.assertGreaterEqual(len(list(account_backup_list)), 1)
+
+        delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
+        self.client.account_backups.begin_delete(BACKUP_RG, TEST_ACC_1, TEST_BACKUP_1).wait()
+
+        account_backup_list = self.client.account_backups.list(BACKUP_RG, TEST_ACC_1)
+        for backup in account_backup_list:
+            self.assertNotEqual(backup.name, TEST_ACC_1 + "/" + TEST_BACKUP_1)
+
+        delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)

@@ -8,11 +8,6 @@ from setup import *
 import azure.mgmt.netapp.models
 import unittest
 
-BACKUP_VNET = 'bprgpythonsdktestvnet464'
-BACKUP_RG = 'bp_rg_python_sdk_test'
-TEST_BACKUP_1 = 'sdk-py-tests-backup-1'
-TEST_BACKUP_2 = 'sdk-py-tests-backup-2'
-BACKUP_LOCATION = 'eastus2euap'
 backups = [TEST_BACKUP_1, TEST_BACKUP_2]
 
 
@@ -153,12 +148,23 @@ class NetAppAccountTestCase(AzureMgmtTestCase):
     def test_update_backup(self):
         create_backup(self.client, live=self.is_live)
 
-        tag = {'Tag1': 'Value1'}
-        backup_body = BackupPatch(location=BACKUP_LOCATION, tags=tag)
+        backup_body = BackupPatch(location=BACKUP_LOCATION, use_existing_snapshot=True)
         self.client.backups.begin_update(BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_BACKUP_1, backup_body).wait()
 
         backup = get_backup(self.client)
-        self.assertEqual(backup.tags['Tag1'] == 'Value1')
+        self.assertTrue(backup.useExistingSnapshot)
+
+        disable_backup(self.client, live=self.is_live)
+        delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)
+        delete_pool(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, live=self.is_live)
+        delete_account(self.client, BACKUP_RG, TEST_ACC_1, live=self.is_live)
+
+    def test_get_backup_status(self):
+        create_backup(self.client, live=self.is_live)
+
+        backup_status = self.client.backups.get_status(BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, TEST_BACKUP_1)
+        self.assertTrue(backup_status.healthy)
+        self.assertEqual(backup_status.mirrorState, "Mirrored")
 
         disable_backup(self.client, live=self.is_live)
         delete_volume(self.client, BACKUP_RG, TEST_ACC_1, TEST_POOL_1, TEST_VOL_1, live=self.is_live)

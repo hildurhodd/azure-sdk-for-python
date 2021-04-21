@@ -1,0 +1,45 @@
+interactions:
+- request:
+    body: '{"location": "southcentralusstage"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '35'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - azsdk-python-mgmt-netapp/1.0.0 Python/3.8.7 (macOS-11.2.3-x86_64-i386-64bit)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/bp_rg_python_sdk_test/providers/Microsoft.NetApp/netAppAccounts/sdk-py-tests-acc-1?api-version=2021-02-01
+  response:
+    body:
+      string: '{"error":{"code":"SubscriptionNotFound","message":"The subscription
+        ''00000000-0000-0000-0000-000000000000'' could not be found."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '129'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 21 Apr 2021 08:19:34 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+    status:
+      code: 404
+      message: Not Found
+version: 1

@@ -50,6 +50,23 @@ class BackupType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     #: Scheduled backup.
     SCHEDULED = "Scheduled"
 
+class AzureKeyVaultEncryptionStatus(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+    """Status of the Azure Key Vault configuration
+    """
+
+    CREATED = "Created"  #: Azure Key Vault configuration created but not in use.
+    IN_USE = "InUse"  #: Azure Key Vault configuration in use by Volume.
+    DELETED = "Deleted"  #: Azure Key Vault configuration Deleted.
+    ERROR = "Error"  #: Error with the Azure Key Vault configuration.
+    UPDATING = "Updating"  #: Azure Key Vault configuration Updating.
+
+class BackupType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+    """Type of backup Manual or Scheduled
+    """
+
+    MANUAL = "Manual"  #: Manual backup.
+    SCHEDULED = "Scheduled"  #: Scheduled backup.
+
 class CheckNameResourceTypes(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """Resource type used for verification.
     """
