@@ -30,25 +30,18 @@ class ActiveDirectoryStatus(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum))
     """Status of the Active Directory
     """
 
-    #: Active Directory created but not in use.
-    CREATED = "Created"
-    #: Active Directory in use by SMB Volume.
-    IN_USE = "InUse"
-    #: Active Directory Deleted.
-    DELETED = "Deleted"
-    #: Error with the Active Directory.
-    ERROR = "Error"
-    #: Active Directory Updating.
-    UPDATING = "Updating"
+    CREATED = "Created"  #: Active Directory created but not in use.
+    IN_USE = "InUse"  #: Active Directory in use by SMB Volume.
+    DELETED = "Deleted"  #: Active Directory Deleted.
+    ERROR = "Error"  #: Error with the Active Directory.
+    UPDATING = "Updating"  #: Active Directory Updating.
 
 class BackupType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """Type of backup Manual or Scheduled
     """
 
-    #: Manual backup.
-    MANUAL = "Manual"
-    #: Scheduled backup.
-    SCHEDULED = "Scheduled"
+    MANUAL = "Manual"  #: Manual backup.
+    SCHEDULED = "Scheduled"  #: Scheduled backup.
 
 class CheckNameResourceTypes(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """Resource type used for verification.
@@ -67,6 +60,15 @@ class CheckQuotaNameResourceTypes(with_metaclass(_CaseInsensitiveEnumMeta, str, 
     MICROSOFT_NET_APP_NET_APP_ACCOUNTS_CAPACITY_POOLS = "Microsoft.NetApp/netAppAccounts/capacityPools"
     MICROSOFT_NET_APP_NET_APP_ACCOUNTS_CAPACITY_POOLS_VOLUMES = "Microsoft.NetApp/netAppAccounts/capacityPools/volumes"
     MICROSOFT_NET_APP_NET_APP_ACCOUNTS_CAPACITY_POOLS_VOLUMES_SNAPSHOTS = "Microsoft.NetApp/netAppAccounts/capacityPools/volumes/snapshots"
+
+class ChownMode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+    """This parameter specifies who is authorized to change the ownership of a file. restricted - Only
+    root user can change the ownership of the file. unrestricted - Non-root users can change
+    ownership of files that they own.
+    """
+
+    RESTRICTED = "Restricted"
+    UNRESTRICTED = "Unrestricted"
 
 class CreatedByType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """The type of identity that created the resource.
@@ -105,10 +107,8 @@ class QosType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """The qos type of the pool
     """
 
-    #: qos type Auto.
-    AUTO = "Auto"
-    #: qos type Manual.
-    MANUAL = "Manual"
+    AUTO = "Auto"  #: qos type Auto.
+    MANUAL = "Manual"  #: qos type Manual.
 
 class RelationshipStatus(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """Status of the mirror relationship
@@ -136,9 +136,6 @@ class ServiceLevel(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     """The service level of the file system
     """
 
-    #: Standard service level.
-    STANDARD = "Standard"
-    #: Premium service level.
-    PREMIUM = "Premium"
-    #: Ultra service level.
-    ULTRA = "Ultra"
+    STANDARD = "Standard"  #: Standard service level.
+    PREMIUM = "Premium"  #: Premium service level.
+    ULTRA = "Ultra"  #: Ultra service level.
